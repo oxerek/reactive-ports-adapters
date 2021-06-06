@@ -1,24 +1,27 @@
 package pl.oxerek.reactiveportsadapters.domain;
 
-import java.util.Set;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import pl.oxerek.reactiveportsadapters.domain.ports.Query;
 import pl.oxerek.reactiveportsadapters.domain.ports.Repository;
-import pl.oxerek.reactiveportsadapters.domain.ports.StreamedQuery;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-@RequiredArgsConstructor
+@Builder
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class GetPayments implements StreamedQuery<Set<UUID>, PaymentDto> {
+public class GetPaymentQuery implements Query<PaymentDto> {
 
     Repository<PaymentDto> repository;
 
+    UUID id;
+
     @Override
-    public Flux<PaymentDto> execute(Set<UUID> ids) {
-        return Payment.retrieveMany(repository, ids.toArray(UUID[]::new))
+    public Mono<PaymentDto> execute() {
+        return Payment.retrieveOne(repository, id)
               .map(Payment::toDto);
     }
 }

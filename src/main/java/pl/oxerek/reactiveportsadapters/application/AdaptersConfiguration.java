@@ -1,5 +1,8 @@
 package pl.oxerek.reactiveportsadapters.application;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+
 import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionPolicy;
@@ -14,12 +17,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import pl.oxerek.reactiveportsadapters.adapters.inbound.PaymentRestHandler;
 import pl.oxerek.reactiveportsadapters.adapters.outbound.PaymentInMemoryRepository;
 import pl.oxerek.reactiveportsadapters.adapters.outbound.model.PaymentInMemoryEntity;
+import pl.oxerek.reactiveportsadapters.domain.ports.PaymentsFacade;
 import pl.oxerek.reactiveportsadapters.domain.ports.Repository;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 
@@ -33,6 +42,20 @@ class AdaptersConfiguration {
     }
 
     @Bean
+    public PaymentRestHandler paymentRestHandler(PaymentsFacade paymentsFacade) {
+        return new PaymentRestHandler(paymentsFacade);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> paymentRestRoutes(PaymentRestHandler paymentRestHandler) {
+        return RouterFunctions.route()
+              .POST("/payment", accept(APPLICATION_JSON), paymentRestHandler::createPayment)
+              .GET("/payments", paymentRestHandler::getPayments)
+              .build();
+    }
+
+    @Bean
+    @ConditionalOnBean(name = "inMemoryStore")
     Repository<PaymentDto> inMemoryRepository(Map<UUID, PaymentInMemoryEntity> inMemoryStore) {
         return new PaymentInMemoryRepository(inMemoryStore);
     }
@@ -65,5 +88,6 @@ class AdaptersConfiguration {
                         .setEvictionConfig(new EvictionConfig().setEvictionPolicy(EvictionPolicy.NONE).setMaxSizePolicy(MaxSizePolicy.FREE_HEAP_SIZE))
                         .setTimeToLiveSeconds(adaptersProperties.getHazelcastTtl()));
         }
+
     }
 }

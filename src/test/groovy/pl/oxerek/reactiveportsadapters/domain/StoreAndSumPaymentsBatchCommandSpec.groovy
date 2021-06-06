@@ -1,9 +1,10 @@
 package pl.oxerek.reactiveportsadapters.domain
 
+
 import static pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto.of
 import static reactor.test.StepVerifier.create
 
-class StoreAndSumPaymentsBatchSpec extends DomainBaseSpec {
+class StoreAndSumPaymentsBatchCommandSpec extends DomainBaseSpec {
 
     def "should store batch of payments and return sum of amounts"() {
 
@@ -14,6 +15,8 @@ class StoreAndSumPaymentsBatchSpec extends DomainBaseSpec {
         def amount4 = new BigDecimal("11.99")
         def amount5 = new BigDecimal("8876.26")
 
+        def sum = amount1.add(amount2).add(amount3).add(amount4).add(amount5)
+
         def paymentsBatch = [
                 of(amount1, "PLN", UUID.randomUUID(), "PL12345678901234567890123456"),
                 of(amount2, "USD", UUID.randomUUID(), "BE12345678901234567890123456"),
@@ -22,9 +25,11 @@ class StoreAndSumPaymentsBatchSpec extends DomainBaseSpec {
                 of(amount5, "USD", UUID.randomUUID(), "DE12345678901234567890123456")
         ]
 
+        def command = storeAndReturnSumCommand(paymentsBatch)
+
         when:
-        def stepVerifier = create(storeAndSumPaymentsBatch.execute(paymentsBatch))
-                .expectNext(amount1.add(amount2).add(amount3).add(amount4).add(amount5))
+        def stepVerifier = create(command.execute())
+                .expectNext(sum)
                 .expectComplete()
 
         then:

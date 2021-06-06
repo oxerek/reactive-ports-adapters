@@ -3,7 +3,7 @@ package pl.oxerek.reactiveportsadapters.domain.ports;
 import reactor.core.publisher.Mono;
 
 @FunctionalInterface
-public interface Query<D, R> {
+public interface Query<T> {
 
-    Mono<R> execute(D data);
+    Mono<T> execute();
 }

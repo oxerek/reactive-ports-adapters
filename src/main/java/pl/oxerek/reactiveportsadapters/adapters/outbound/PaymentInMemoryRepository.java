@@ -52,9 +52,6 @@ public class PaymentInMemoryRepository implements Repository<PaymentDto> {
     public Mono<PaymentDto> update(PaymentDto dto) {
         return Mono.justOrEmpty(store.computeIfPresent(dto.id().orElseThrow(), (uuid, paymentInMemoryEntity) -> INSTANCE.dtoToEntity(of(dto, uuid))))
               .map(INSTANCE::entityToDto);
-/*
-        return Mono.justOrEmpty(store.put(dto.id().orElseThrow(), INSTANCE.dtoToEntity(dto)))
-              .map(INSTANCE::entityToDto);*/
     }
 
     @Override

@@ -1,17 +1,20 @@
 package pl.oxerek.reactiveportsadapters.domain
 
+
 import static pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto.of
 import static reactor.test.StepVerifier.create
 
-class CreateOrModifyPaymentSpec extends DomainBaseSpec {
+class CreateOrModifyPaymentCommandSpec extends DomainBaseSpec {
 
     def "should save new payment with generated id"() {
 
         given:
         def paymentDto = of(BigDecimal.TEN, "PLN", UUID.randomUUID(), "PL12345678901234567890123456")
 
+        def createCommand = createOrUpdateCommand(paymentDto)
+
         when:
-        def stepVerifier = create(createOrModifyPaymentSpec.execute(paymentDto))
+        def stepVerifier = create(createCommand.execute())
                 .expectNextMatches(createdPaymentDto -> createdPaymentDto.id().isPresent())
                 .expectComplete()
 
@@ -26,15 +29,17 @@ class CreateOrModifyPaymentSpec extends DomainBaseSpec {
 
         given:
         def paymentDto = of(BigDecimal.TEN, "PLN", UUID.randomUUID(), "PL12345678901234567890123456")
-        def createdPaymentId = createOrModifyPaymentSpec.execute(paymentDto).block().id().orElseThrow()
+        def createdPaymentId = createPaymentAndReturnId(paymentDto)
         def toUpdatePayment = of(createdPaymentId, BigDecimal.ONE, "EUR", UUID.randomUUID(), "DE12345678901234567890123456")
+
+        def updateCommand = createOrUpdateCommand(toUpdatePayment)
 
         expect:
         !store.isEmpty()
         store.size() == 1
 
         when:
-        def stepVerifier = create(createOrModifyPaymentSpec.execute(toUpdatePayment))
+        def stepVerifier = create(updateCommand.execute())
                 .expectNextMatches(modifiedPaymentDto -> modifiedPaymentDto == toUpdatePayment)
                 .expectComplete()
 

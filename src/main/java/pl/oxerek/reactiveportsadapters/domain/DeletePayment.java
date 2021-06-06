@@ -11,12 +11,12 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class DeletePayment implements Command<UUID, UUID> {
+public class DeletePayment implements Command<UUID, Void> {
 
     Repository<PaymentDto> repository;
 
     @Override
-    public Mono<UUID> execute(UUID id) {
+    public Mono<Void> execute(UUID id) {
         return Payment.retrieveOne(repository, id)
               .flatMap(payment -> payment.delete(repository))
               .then(Mono.empty());

@@ -23,6 +23,7 @@ import reactor.util.Loggers;
 public class DummyController {
 
     public static void main(String[] args) {
+        Loggers.useConsoleLoggers();
 
         var inMemoryRepository = new PaymentInMemoryRepository(new ConcurrentHashMap<>());
 
@@ -33,8 +34,6 @@ public class DummyController {
               new GetPayment(inMemoryRepository),
               new GetPayments(inMemoryRepository)
         );
-
-        Loggers.useConsoleLoggers();
 
         var paymentDto = PaymentDto.of(
               BigDecimal.valueOf(1123.33),

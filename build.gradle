@@ -5,6 +5,9 @@ plugins {
 
 	id 'org.springframework.boot' version '2.5.0'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "com.coditory.integration-test" version "1.2.1"
+
+	id 'com.palantir.docker' version '0.26.0'
 }
 
 group = 'pl.oxerek'
@@ -31,19 +34,30 @@ dependencies {
 
 	implementation 'com.hazelcast:hazelcast:4.2'
 
-	implementation 'io.projectreactor.tools:blockhound:1.0.6.RELEASE'
-
 	compileOnly 'org.projectlombok:lombok'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
+
+	testImplementation platform('org.spockframework:spock-bom:2.0-groovy-3.0')
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation 'org.spockframework:spock-spring'
+
+	testImplementation 'org.codehaus.groovy:groovy-all:3.0.7'
+	testImplementation 'com.tngtech.archunit:archunit:0.18.0'
+	testImplementation 'io.projectreactor.tools:blockhound:1.0.6.RELEASE'
+
+	testImplementation platform('org.testcontainers:testcontainers-bom:1.15.3')
+	testImplementation('org.testcontainers:spock')
 }
+
+ext['groovy.version'] = '3.0.7'
 
 test {
 	useJUnitPlatform()
@@ -51,4 +65,24 @@ test {
 	afterTest { desc, result ->
 		logger.quiet "Executing test \"${desc.name}\" [${desc.className}] with result: ${result.resultType} and took: ${result.endTime - result.startTime}ms"
 	}
+}
+
+integrationTest {
+	useJUnitPlatform()
+
+	afterTest { desc, result ->
+		logger.quiet "Executing integration test \"${desc.name}\" [${desc.className}] with result: ${result.resultType} and took: ${result.endTime - result.startTime}ms"
+	}
+}
+
+docker {
+	def dockerName = "$project.group/$project.name"
+	def dockerTag = project.version.toLowerCase()
+	def jarFileName = bootJar.archiveFileName.get()
+
+	name dockerName
+	tag "latest", "$dockerName:$dockerTag"
+	files bootJar.archiveFile.get()
+	buildArgs([ jarFileName: jarFileName ])
+	noCache true
 }

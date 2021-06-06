@@ -17,7 +17,7 @@ public class PaymentsFacade {
 
     Command<PaymentDto, PaymentDto> createOrModifyPayment;
 
-    Command<UUID, UUID> deletePayment;
+    Command<UUID, Void> deletePayment;
 
     Command<List<PaymentDto>, BigDecimal> storeAndSumPaymentsBatch;
 

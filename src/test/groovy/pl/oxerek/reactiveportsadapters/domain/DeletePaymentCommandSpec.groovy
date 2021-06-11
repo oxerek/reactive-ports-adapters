@@ -18,7 +18,9 @@ class DeletePaymentCommandSpec extends DomainBaseSpec {
         store.size() == 1
 
         when:
-        def stepVerifier = create(deleteCommand.execute()).expectComplete()
+        def stepVerifier = create(deleteCommand.execute())
+                .expectNextMatches(deletedPayment -> deletedPayment == of(paymentDto, createdPaymentId))
+                .expectComplete()
 
         then:
         stepVerifier.verify()

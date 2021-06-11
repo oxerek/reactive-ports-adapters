@@ -1,5 +1,6 @@
 package pl.oxerek.reactiveportsadapters.domain;
 
+import java.util.Objects;
 import lombok.Value;
 import lombok.experimental.Accessors;
 
@@ -8,4 +9,8 @@ import lombok.experimental.Accessors;
 class Account {
 
     String number;
+
+    Account mergeWith(Account account) {
+        return Objects.equals(number, account.number) ? this : of(account.number);
+    }
 }

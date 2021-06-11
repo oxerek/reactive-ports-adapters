@@ -55,7 +55,7 @@ public class PaymentInMemoryRepository implements Repository<PaymentDto> {
     }
 
     @Override
-    public Mono<Void> delete(UUID id) {
-        return Mono.justOrEmpty(store.remove(id)).then();
+    public Mono<PaymentDto> delete(UUID id) {
+        return Mono.justOrEmpty(INSTANCE.entityToDto(store.remove(id)));
     }
 }

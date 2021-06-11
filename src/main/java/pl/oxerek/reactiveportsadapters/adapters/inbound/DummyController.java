@@ -29,7 +29,7 @@ public class DummyController {
               "PL12345678901234567890123456"
         );
 
-        var paymentDtoSaved = paymentsFacade.createOrModifyPayment(paymentDto).log().block();
+        var paymentDtoSaved = paymentsFacade.createOrUpdatePayment(paymentDto).log().block();
 
         System.out.println("Saved = " + paymentDtoSaved);
 
@@ -45,7 +45,7 @@ public class DummyController {
               "PL12345678901234567890123456"
         );
 
-        paymentsFacade.createOrModifyPayment(paymentDtoModified).log().block();
+        paymentsFacade.createOrUpdatePayment(paymentDtoModified).log().block();
 
         var paymentDtoRetrievedAfterModify = paymentsFacade.getPayment(paymentDtoModified.id().orElseThrow()).log().block();
 

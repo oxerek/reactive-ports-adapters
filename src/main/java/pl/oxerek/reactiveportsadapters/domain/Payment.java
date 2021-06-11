@@ -28,23 +28,31 @@ class Payment {
     Account targetAccountNumber;
 
     Mono<Payment> save(Repository<PaymentDto> repository) {
-        if (this.id != null) {
+        if (id != null) {
             return repository.update(toDto()).map(Payment::ofDto);
         }
         return repository.create(toDto()).map(paymentDto -> id(paymentDto.id().orElseThrow()));
     }
 
-    Mono<Void> delete(Repository<PaymentDto> repository) {
-        return repository.delete(this.id);
+    Mono<Payment> mergeWith(Repository<PaymentDto> repository, Payment payment) {
+        amount = amount.mergeWith(payment.amount);
+        user = user.mergeWith(payment.user);
+        targetAccountNumber = targetAccountNumber.mergeWith(payment.targetAccountNumber);
+
+        return save(repository);
+    }
+
+    Mono<Payment> delete(Repository<PaymentDto> repository) {
+        return repository.delete(id).map(Payment::ofDto);
     }
 
     PaymentDto toDto() {
         return PaymentDto.of(
-              this.id,
-              this.amount.value(),
-              this.amount.currency().name(),
-              this.user.id(),
-              this.targetAccountNumber.number()
+              id,
+              amount.value(),
+              amount.currency().name(),
+              user.id(),
+              targetAccountNumber.number()
         );
     }
 

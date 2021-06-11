@@ -4,7 +4,7 @@ package pl.oxerek.reactiveportsadapters.domain
 import static pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto.of
 import static reactor.test.StepVerifier.create
 
-class CreateOrModifyPaymentCommandSpec extends DomainBaseSpec {
+class CreateOrUpdatePaymentCommandSpec extends DomainBaseSpec {
 
     def "should save new payment with generated id"() {
 

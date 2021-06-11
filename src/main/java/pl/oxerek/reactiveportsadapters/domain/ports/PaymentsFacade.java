@@ -7,10 +7,11 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import pl.oxerek.reactiveportsadapters.domain.CreateOrModifyPaymentCommand;
+import pl.oxerek.reactiveportsadapters.domain.CreateOrUpdatePaymentCommand;
 import pl.oxerek.reactiveportsadapters.domain.DeletePaymentCommand;
 import pl.oxerek.reactiveportsadapters.domain.GetPaymentQuery;
 import pl.oxerek.reactiveportsadapters.domain.GetPaymentsQuery;
+import pl.oxerek.reactiveportsadapters.domain.ModifyCommand;
 import pl.oxerek.reactiveportsadapters.domain.StoreAndSumPaymentsBatchCommand;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 import reactor.core.publisher.Flux;
@@ -22,8 +23,8 @@ public class PaymentsFacade {
 
     Repository<PaymentDto> repository;
 
-    public Mono<PaymentDto> createOrModifyPayment(PaymentDto paymentDto) {
-        var command = CreateOrModifyPaymentCommand.builder()
+    public Mono<PaymentDto> createOrUpdatePayment(PaymentDto paymentDto) {
+        var command = CreateOrUpdatePaymentCommand.builder()
               .repository(repository)
               .paymentDto(paymentDto)
               .build();
@@ -31,7 +32,17 @@ public class PaymentsFacade {
         return command.execute();
     }
 
-    public Mono<Void> deletePayment(UUID id) {
+    public Mono<PaymentDto> modifyPayment(PaymentDto paymentDto, UUID id) {
+        var command = ModifyCommand.builder()
+              .repository(repository)
+              .id(id)
+              .paymentDto(paymentDto)
+              .build();
+
+        return command.execute();
+    }
+
+    public Mono<PaymentDto> deletePayment(UUID id) {
         var command = DeletePaymentCommand.builder()
               .repository(repository)
               .id(id)

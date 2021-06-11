@@ -1,5 +1,8 @@
 package pl.oxerek.reactiveportsadapters.domain;
 
+import static pl.oxerek.reactiveportsadapters.domain.Payment.ofDto;
+
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -12,16 +15,19 @@ import reactor.core.publisher.Mono;
 @Builder
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class CreateOrModifyPaymentCommand implements Command<PaymentDto> {
+public class ModifyCommand implements Command<PaymentDto> {
 
     Repository<PaymentDto> repository;
 
     PaymentDto paymentDto;
 
+    UUID id;
+
     @Override
     public Mono<PaymentDto> execute() {
-        return Payment.ofDto(paymentDto)
-              .save(repository)
+        return repository.findById(id)
+              .map(Payment::ofDto)
+              .flatMap(payment -> payment.mergeWith(repository, ofDto(paymentDto)))
               .map(Payment::toDto);
     }
 }

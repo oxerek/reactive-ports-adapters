@@ -2,6 +2,7 @@ package pl.oxerek.reactiveportsadapters.domain.ports;
 
 import java.util.Set;
 import java.util.UUID;
+import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,5 +18,5 @@ public interface Repository<E> {
 
     Mono<E> update(E dto);
 
-    Mono<Void> delete(UUID id);
+    Mono<PaymentDto> delete(UUID id);
 }

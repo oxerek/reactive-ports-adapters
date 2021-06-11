@@ -12,7 +12,7 @@ class DomainBaseSpec extends Specification {
     def repository = new PaymentInMemoryRepository(store)
 
     def createPaymentAndReturnId(PaymentDto paymentDto) {
-        CreateOrModifyPaymentCommand.builder()
+        CreateOrUpdatePaymentCommand.builder()
                 .repository(repository)
                 .paymentDto(paymentDto)
                 .build()
@@ -20,7 +20,7 @@ class DomainBaseSpec extends Specification {
     }
 
     def createOrUpdateCommand(PaymentDto paymentDto) {
-        CreateOrModifyPaymentCommand.builder()
+        CreateOrUpdatePaymentCommand.builder()
                 .repository(repository)
                 .paymentDto(paymentDto)
                 .build()

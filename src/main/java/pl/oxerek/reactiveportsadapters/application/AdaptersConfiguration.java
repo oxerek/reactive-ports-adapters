@@ -36,6 +36,11 @@ import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 @EnableConfigurationProperties(AdaptersProperties.class)
 class AdaptersConfiguration {
 
+    private static final String GET_PUT_PATCH_DELETE_PATTERN = "/payment/{id}";
+    private static final String GET_MANY_BY_IDS_PATTERN = "/payments/{ids}";
+    private static final String GET_MANY_PATTERN = "/payments";
+    private static final String POST_PATTERN = "/payment";
+
     @Bean
     AdaptersProperties adaptersProperties() {
         return new AdaptersProperties();
@@ -49,8 +54,13 @@ class AdaptersConfiguration {
     @Bean
     public RouterFunction<ServerResponse> paymentRestRoutes(PaymentRestHandler paymentRestHandler) {
         return RouterFunctions.route()
-              .POST("/payment", accept(APPLICATION_JSON), paymentRestHandler::createPayment)
-              .GET("/payments", paymentRestHandler::getPayments)
+              .POST(POST_PATTERN, accept(APPLICATION_JSON), paymentRestHandler::createPayment)
+              .PUT(GET_PUT_PATCH_DELETE_PATTERN, accept(APPLICATION_JSON), paymentRestHandler::updatePayment)
+              .PATCH(GET_PUT_PATCH_DELETE_PATTERN, accept(APPLICATION_JSON), paymentRestHandler::modifyPayment)
+              .DELETE(GET_PUT_PATCH_DELETE_PATTERN, paymentRestHandler::deletePayment)
+              .GET(GET_PUT_PATCH_DELETE_PATTERN, paymentRestHandler::getPayment)
+              .GET(GET_MANY_PATTERN, paymentRestHandler::getPayments)
+              .GET(GET_MANY_BY_IDS_PATTERN, paymentRestHandler::getPayments)
               .build();
     }
 

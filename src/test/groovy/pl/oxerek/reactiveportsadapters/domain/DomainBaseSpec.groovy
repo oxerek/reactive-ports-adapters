@@ -26,6 +26,14 @@ class DomainBaseSpec extends Specification {
                 .build()
     }
 
+    def modifyCommand(PaymentDto paymentDto, UUID id) {
+        ModifyCommand.builder()
+                .repository(repository)
+                .paymentDto(paymentDto)
+                .id(id)
+                .build()
+    }
+
     def deleteCommand(UUID createdPaymentId) {
         DeletePaymentCommand.builder()
                 .repository(repository)

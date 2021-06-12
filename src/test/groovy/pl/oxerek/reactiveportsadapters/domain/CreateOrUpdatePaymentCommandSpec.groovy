@@ -40,7 +40,7 @@ class CreateOrUpdatePaymentCommandSpec extends DomainBaseSpec {
 
         when:
         def stepVerifier = create(updateCommand.execute())
-                .expectNextMatches(modifiedPaymentDto -> modifiedPaymentDto == toUpdatePayment)
+                .expectNextMatches(updatedPaymentDto -> updatedPaymentDto == toUpdatePayment)
                 .expectComplete()
 
         then:

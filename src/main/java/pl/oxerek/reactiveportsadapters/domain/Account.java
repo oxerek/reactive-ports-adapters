@@ -11,6 +11,6 @@ class Account {
     String number;
 
     Account mergeWith(Account account) {
-        return Objects.equals(number, account.number) ? this : of(account.number);
+        return account.number == null || Objects.equals(number, account.number) ? this : of(account.number);
     }
 }

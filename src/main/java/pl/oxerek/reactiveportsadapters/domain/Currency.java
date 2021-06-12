@@ -9,6 +9,6 @@ enum Currency {
         return stream(values())
               .filter(value -> value.name().equals(currency))
               .findFirst()
-              .orElseThrow();
+              .orElse(null);
     }
 }

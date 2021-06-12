@@ -50,7 +50,7 @@ class Payment {
         return PaymentDto.of(
               id,
               amount.value(),
-              amount.currency().name(),
+              amount.currency(),
               user.id(),
               targetAccountNumber.number()
         );

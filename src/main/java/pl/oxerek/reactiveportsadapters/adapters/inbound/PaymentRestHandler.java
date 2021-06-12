@@ -8,6 +8,7 @@ import static org.springframework.web.reactive.function.server.ServerResponse.no
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 import static pl.oxerek.reactiveportsadapters.adapters.inbound.mapper.PaymentRestMapper.INSTANCE;
 import static pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto.of;
+import static reactor.core.publisher.Mono.just;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -34,24 +35,24 @@ public class PaymentRestHandler {
         return request.bodyToMono(PaymentRestRequest.class)
               .flatMap(paymentRestRequest -> paymentsFacade.createOrUpdatePayment(INSTANCE.requestToDto(paymentRestRequest)))
                     .map(INSTANCE::dtoToResponse)
-                    .flatMap(paymentRestResponse -> created(URI.create("/payment/" + paymentRestResponse.getId()))
+                    .flatMap(paymentRestResponse -> created(uriOfCreatedPayment(request, paymentRestResponse.getId()))
                           .contentType(APPLICATION_JSON)
-                          .body(paymentRestResponse, PaymentRestResponse.class));
-    }
-
-    public Mono<ServerResponse> updatePayment(ServerRequest request) {
-        return request.bodyToMono(PaymentRestRequest.class)
-              .flatMap(paymentRestRequest -> paymentsFacade.createOrUpdatePayment(of(INSTANCE.requestToDto(paymentRestRequest), idFromPathVariable(request)))
-                    .map(INSTANCE::dtoToResponse)
-                    .flatMap(paymentRestResponse -> ok().contentType(APPLICATION_JSON).body(paymentRestResponse, PaymentRestResponse.class))
-                    .switchIfEmpty(notFound().build()));
+                          .body(just(paymentRestResponse), PaymentRestResponse.class));
     }
 
     public Mono<ServerResponse> modifyPayment(ServerRequest request) {
         return request.bodyToMono(PaymentRestRequest.class)
               .flatMap(paymentRestRequest -> paymentsFacade.modifyPayment(INSTANCE.requestToDto(paymentRestRequest), idFromPathVariable(request))
                     .map(INSTANCE::dtoToResponse)
-                    .flatMap(paymentRestResponse -> ok().contentType(APPLICATION_JSON).body(paymentRestResponse, PaymentRestResponse.class))
+                    .flatMap(paymentRestResponse -> ok().contentType(APPLICATION_JSON).body(just(paymentRestResponse), PaymentRestResponse.class))
+                    .switchIfEmpty(notFound().build()));
+    }
+
+    public Mono<ServerResponse> updatePayment(ServerRequest request) {
+        return request.bodyToMono(PaymentRestRequest.class)
+              .flatMap(paymentRestRequest -> paymentsFacade.createOrUpdatePayment(of(INSTANCE.requestToDto(paymentRestRequest), idFromPathVariable(request)))
+                    .map(INSTANCE::dtoToResponse)
+                    .flatMap(paymentRestResponse -> ok().contentType(APPLICATION_JSON).body(just(paymentRestResponse), PaymentRestResponse.class))
                     .switchIfEmpty(notFound().build()));
     }
 
@@ -73,7 +74,7 @@ public class PaymentRestHandler {
         return paymentsFacade.getPayment(idFromPathVariable(request)).map(INSTANCE::dtoToResponse)
               .flatMap(paymentRestResponse -> ok()
                     .contentType(APPLICATION_JSON)
-                    .body(paymentRestResponse, PaymentRestResponse.class))
+                    .body(just(paymentRestResponse), PaymentRestResponse.class))
                     .switchIfEmpty(notFound().build());
     }
 
@@ -87,5 +88,9 @@ public class PaymentRestHandler {
               .flatMap(pathVariable -> Arrays.stream(pathVariable.split(",")))
               .map(UUID::fromString)
               .collect(Collectors.toSet());
+    }
+
+    private URI uriOfCreatedPayment(ServerRequest request, UUID id) {
+        return URI.create(request.exchange().getRequest().getURI() + "/" + id);
     }
 }

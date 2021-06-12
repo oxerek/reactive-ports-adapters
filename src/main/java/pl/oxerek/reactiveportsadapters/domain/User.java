@@ -12,6 +12,6 @@ class User {
     UUID id;
 
     User mergeWith(User user) {
-        return Objects.equals(id, user.id) ? this : of(user.id);
+        return user.id == null || Objects.equals(id, user.id) ? this : of(user.id);
     }
 }

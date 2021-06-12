@@ -13,13 +13,17 @@ class Amount {
 
     Currency currency;
 
+    String currency() {
+        return currency != null ? currency.name() : null;
+    }
+
     Amount mergeWith(Amount amount) {
-        var valuesNotEqual = !Objects.equals(value, amount.value);
-        var currenciesNotEqual = !Objects.equals(currency, amount.currency);
+        var modifyValue = amount.value != null && !Objects.equals(value, amount.value);
+        var modifyCurrency = amount.currency != null && !Objects.equals(currency, amount.currency);
 
-        var newValue = valuesNotEqual ? amount.value : value;
-        var newCurrency = currenciesNotEqual ? amount.currency : currency;
+        var newValue = modifyValue ? amount.value : value;
+        var newCurrency = modifyCurrency ? amount.currency : currency;
 
-        return (valuesNotEqual || currenciesNotEqual) ? of(newValue, newCurrency) : this;
+        return (modifyValue || modifyCurrency) ? of(newValue, newCurrency) : this;
     }
 }

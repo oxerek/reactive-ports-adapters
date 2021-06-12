@@ -98,6 +98,5 @@ class AdaptersConfiguration {
                         .setEvictionConfig(new EvictionConfig().setEvictionPolicy(EvictionPolicy.NONE).setMaxSizePolicy(MaxSizePolicy.FREE_HEAP_SIZE))
                         .setTimeToLiveSeconds(adaptersProperties.getHazelcastTtl()));
         }
-
     }
 }

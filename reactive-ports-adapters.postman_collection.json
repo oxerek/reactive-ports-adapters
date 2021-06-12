@@ -1,0 +1,186 @@
+{
+	"info": {
+		"_postman_id": "7771c7d5-a3fb-479d-9835-2583167ae6ac",
+		"name": "reactive-ports-adapters",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create payment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount\": \"10.00\",\r\n    \"currency\": \"PLN\",\r\n    \"userId\": \"3d67177f-7eb1-4650-b37e-c95dae9b9f87\",\r\n    \"targetAccountNumber\": \"PL12345678901234567890123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/payment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get payments",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/payments/e27f18b3-5e5a-48d7-93ca-c588678d00fe,61a2953f-db07-4798-a932-1f31a5a8b355,2b42da28-d726-45f1-859e-d63ad19c2dd1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payments",
+						"e27f18b3-5e5a-48d7-93ca-c588678d00fe,61a2953f-db07-4798-a932-1f31a5a8b355,2b42da28-d726-45f1-859e-d63ad19c2dd1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get payment",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/payment/f86ea82d-87fa-45c6-8869-a29242528f83",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payment",
+						"f86ea82d-87fa-45c6-8869-a29242528f83"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get payments all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/payments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "modify payment",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    //\"amount\": \"10.00\",\r\n    //\"currency\": \"PLN\",\r\n    //\"userId\": \"3d67177f-7eb1-4650-b37e-c95dae9b9f87\",\r\n    \"targetAccountNumber\": \"FR12345678901234567890123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/payment/a8a7d77e-105f-4647-9388-11a056397d9e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payment",
+						"a8a7d77e-105f-4647-9388-11a056397d9e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update payment",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount\": \"11.00\",\r\n    \"currency\": \"USD\",\r\n    \"userId\": \"3d67177f-7eb1-4650-b37e-c95dae9b9f87\",\r\n    \"targetAccountNumber\": \"UK12345678901234567890123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/payment/e1c34269-9be6-4f01-8304-d36aed12c919",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payment",
+						"e1c34269-9be6-4f01-8304-d36aed12c919"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete payment",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/payment/e1c34269-9be6-4f01-8304-d36aed12c919",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payment",
+						"e1c34269-9be6-4f01-8304-d36aed12c919"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

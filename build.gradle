@@ -8,6 +8,8 @@ plugins {
 	id "com.coditory.integration-test" version "1.2.1"
 
 	id 'com.palantir.docker' version '0.26.0'
+
+	id 'com.google.protobuf' version '0.8.16'
 }
 
 group = 'pl.oxerek'
@@ -30,6 +32,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	implementation 'io.grpc:grpc-netty-shaded:1.38.0'
+	implementation 'io.grpc:grpc-protobuf:1.38.0'
+	implementation 'io.grpc:grpc-stub:1.38.0'
+
+	implementation 'net.devh:grpc-client-spring-boot-starter:2.12.0.RELEASE'
+	implementation 'net.devh:grpc-spring-boot-starter:2.12.0.RELEASE'
+
+	implementation 'com.salesforce.servicelibs:reactor-grpc-stub:1.0.1'
 
 	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
 	implementation 'com.opencsv:opencsv:5.4'
@@ -60,6 +71,44 @@ dependencies {
 }
 
 ext['groovy.version'] = '3.0.7'
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:3.17.3"
+	}
+	plugins {
+		grpc {
+			artifact = "io.grpc:protoc-gen-grpc-java:1.38.0"
+		}
+		reactor {
+			artifact = "com.salesforce.servicelibs:reactor-grpc:1.0.1"
+		}
+	}
+	generateProtoTasks {
+		ofSourceSet("main")*.plugins {
+			grpc {}
+			reactor {}
+		}
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir "${buildDir.absolutePath}/generated/source/proto/main/grpc"
+			srcDir "${buildDir.absolutePath}/generated/source/proto/main/java"
+			srcDir "${buildDir.absolutePath}/generated/source/proto/main/reactor"
+		}
+	}
+}
+
+idea {
+	module {
+		generatedSourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
+		generatedSourceDirs += file("${protobuf.generatedFilesBaseDir}/main/grpc")
+		generatedSourceDirs += file("${protobuf.generatedFilesBaseDir}/main/reactor")
+	}
+}
 
 test {
 	useJUnitPlatform()

@@ -3,6 +3,7 @@ package pl.oxerek.reactiveportsadapters.application;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 
+import com.google.protobuf.StringValue;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionPolicy;
@@ -16,6 +17,9 @@ import com.hazelcast.core.HazelcastInstance;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.NoArgsConstructor;
+import org.mapstruct.MapperConfig;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -25,16 +29,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import pl.oxerek.reactiveportsadapters.adapters.inbound.PaymentGrpcService;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.PaymentRestHandler;
 import pl.oxerek.reactiveportsadapters.adapters.outbound.PaymentInMemoryRepository;
 import pl.oxerek.reactiveportsadapters.adapters.outbound.model.PaymentInMemoryEntity;
+import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.MappersConfig.StringValueStringMapper;
+import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.MappersConfig.StringValueUUIDMapper;
 import pl.oxerek.reactiveportsadapters.domain.ports.PaymentsFacade;
 import pl.oxerek.reactiveportsadapters.domain.ports.Repository;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 
 @Configuration
 @EnableConfigurationProperties(AdaptersProperties.class)
-class AdaptersConfiguration {
+public class AdaptersConfiguration {
 
     private static final String GET_PUT_PATCH_DELETE_PATTERN = "/payment/{id}";
     private static final String GET_MANY_BY_IDS_PATTERN = "/payments/{ids}";
@@ -47,12 +54,12 @@ class AdaptersConfiguration {
     }
 
     @Bean
-    public PaymentRestHandler paymentRestHandler(PaymentsFacade paymentsFacade) {
+    PaymentRestHandler paymentRestHandler(PaymentsFacade paymentsFacade) {
         return new PaymentRestHandler(paymentsFacade);
     }
 
     @Bean
-    public RouterFunction<ServerResponse> paymentRestRoutes(PaymentRestHandler paymentRestHandler) {
+    RouterFunction<ServerResponse> paymentRestRoutes(PaymentRestHandler paymentRestHandler) {
         return RouterFunctions.route()
               .POST(POST_PATTERN, accept(APPLICATION_JSON), paymentRestHandler::createPayment)
               .PUT(GET_PUT_PATCH_DELETE_PATTERN, accept(APPLICATION_JSON), paymentRestHandler::updatePayment)
@@ -62,6 +69,11 @@ class AdaptersConfiguration {
               .GET(GET_MANY_PATTERN, paymentRestHandler::getPayments)
               .GET(GET_MANY_BY_IDS_PATTERN, paymentRestHandler::getPayments)
               .build();
+    }
+
+    @Bean
+    PaymentGrpcService paymentGrpcService(PaymentsFacade paymentsFacade) {
+        return new PaymentGrpcService(paymentsFacade);
     }
 
     @Bean
@@ -80,7 +92,7 @@ class AdaptersConfiguration {
     static class InMemoryHazelcastStoreConfiguration {
 
         @Bean
-        public Map<UUID, PaymentInMemoryEntity> inMemoryStore(
+        Map<UUID, PaymentInMemoryEntity> inMemoryStore(
               @Qualifier("hazelcastInstance") HazelcastInstance hazelcast,
               AdaptersProperties adaptersProperties
         ) {
@@ -88,7 +100,7 @@ class AdaptersConfiguration {
         }
 
         @Bean
-        public Config hazelcastConfiguration(AdaptersProperties adaptersProperties) {
+        Config hazelcastConfiguration(AdaptersProperties adaptersProperties) {
             return new Config().setInstanceName(adaptersProperties.getHazelcastInstanceName())
                   .setNetworkConfig(new NetworkConfig().setJoin(new JoinConfig()
                         .setKubernetesConfig(new KubernetesConfig().setEnabled(adaptersProperties.isHazelcastKubernetes()))
@@ -97,6 +109,41 @@ class AdaptersConfiguration {
                         .setName(adaptersProperties.getHazelcastCacheName())
                         .setEvictionConfig(new EvictionConfig().setEvictionPolicy(EvictionPolicy.NONE).setMaxSizePolicy(MaxSizePolicy.FREE_HEAP_SIZE))
                         .setTimeToLiveSeconds(adaptersProperties.getHazelcastTtl()));
+        }
+    }
+
+    @MapperConfig(
+          unmappedTargetPolicy = ReportingPolicy.IGNORE,
+          uses = { StringValueStringMapper.class, StringValueUUIDMapper.class }
+    )
+    public interface MappersConfig {
+
+        @NoArgsConstructor
+        class StringValueUUIDMapper {
+
+            public UUID toUuid(StringValue stringValue) {
+                var value = stringValue.getValue();
+
+                return value.isEmpty() ? null : UUID.fromString(value);
+            }
+
+            public StringValue toStringValue(UUID uuid) {
+                return StringValue.of(uuid.toString());
+            }
+        }
+
+        @NoArgsConstructor
+        class StringValueStringMapper {
+
+            public String toString(StringValue stringValue) {
+                var value = stringValue.getValue();
+
+                return value.isEmpty() ? null : value;
+            }
+
+            public StringValue toStringValue(String string) {
+                return string.isEmpty() ? StringValue.getDefaultInstance() : StringValue.of(string);
+            }
         }
     }
 }

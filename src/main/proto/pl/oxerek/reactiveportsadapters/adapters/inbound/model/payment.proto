@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_package = "pl.oxerek.reactiveportsadapters.adapters.inbound.model";
+option java_multiple_files = true;
+
+package pl.oxerek.reactiveportsadapters.adapters.inbound.model;
+
+import "google/protobuf/wrappers.proto";
+
+message PaymentWithIdGrpcRequest {
+  google.protobuf.StringValue id = 1;
+  PaymentGrpcRequest payment = 2;
+}
+
+message PaymentGrpcRequest {
+  google.protobuf.StringValue amount = 1;
+  google.protobuf.StringValue currency = 2;
+  google.protobuf.StringValue userId = 3;
+  google.protobuf.StringValue targetAccountNumber = 4;
+}
+
+message PaymentGrpcResponse {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue amount = 2;
+  google.protobuf.StringValue currency = 3;
+  google.protobuf.StringValue userId = 4;
+  google.protobuf.StringValue targetAccountNumber = 5;
+}

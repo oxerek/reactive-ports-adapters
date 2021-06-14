@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.model.PaymentRestRequest;
@@ -40,17 +41,17 @@ public class PaymentRestHandler {
                           .body(just(paymentRestResponse), PaymentRestResponse.class));
     }
 
-    public Mono<ServerResponse> modifyPayment(ServerRequest request) {
+    public Mono<ServerResponse> updatePayment(ServerRequest request) {
         return request.bodyToMono(PaymentRestRequest.class)
-              .flatMap(paymentRestRequest -> paymentsFacade.modifyPayment(INSTANCE.requestToDto(paymentRestRequest), idFromPathVariable(request))
+              .flatMap(paymentRestRequest -> paymentsFacade.createOrUpdatePayment(of(INSTANCE.requestToDto(paymentRestRequest), idFromPathVariable(request)))
                     .map(INSTANCE::dtoToResponse)
                     .flatMap(paymentRestResponse -> ok().contentType(APPLICATION_JSON).body(just(paymentRestResponse), PaymentRestResponse.class))
                     .switchIfEmpty(notFound().build()));
     }
 
-    public Mono<ServerResponse> updatePayment(ServerRequest request) {
+    public Mono<ServerResponse> modifyPayment(ServerRequest request) {
         return request.bodyToMono(PaymentRestRequest.class)
-              .flatMap(paymentRestRequest -> paymentsFacade.createOrUpdatePayment(of(INSTANCE.requestToDto(paymentRestRequest), idFromPathVariable(request)))
+              .flatMap(paymentRestRequest -> paymentsFacade.modifyPayment(INSTANCE.requestToDto(paymentRestRequest), idFromPathVariable(request))
                     .map(INSTANCE::dtoToResponse)
                     .flatMap(paymentRestResponse -> ok().contentType(APPLICATION_JSON).body(just(paymentRestResponse), PaymentRestResponse.class))
                     .switchIfEmpty(notFound().build()));
@@ -64,7 +65,7 @@ public class PaymentRestHandler {
 
     @SuppressWarnings("java:S5411")
     public Mono<ServerResponse> getPayments(ServerRequest request) {
-        var payments = paymentsFacade.getPayments(idsFromPathVariables(request)).map(INSTANCE::dtoToResponse);
+        var payments = paymentsFacade.getPayments(idsFromPathVariable(request)).map(INSTANCE::dtoToResponse);
 
         return payments.hasElements()
               .flatMap(hasElements -> hasElements ? ok().contentType(APPLICATION_JSON).body(payments, PaymentRestResponse.class) : notFound().build());
@@ -82,10 +83,12 @@ public class PaymentRestHandler {
         return fromString(request.pathVariable("id"));
     }
 
-    private Set<UUID> idsFromPathVariables(ServerRequest request) {
+    private Set<UUID> idsFromPathVariable(ServerRequest request) {
         return ofNullable(request.pathVariables().get("ids"))
+              .filter(StringUtils::isNotBlank)
               .stream()
               .flatMap(pathVariable -> Arrays.stream(pathVariable.split(",")))
+              .map(String::trim)
               .map(UUID::fromString)
               .collect(Collectors.toSet());
     }

@@ -7,7 +7,7 @@ import pl.oxerek.reactiveportsadapters.domain.ports.Repository;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 
 @Configuration
-public class PortsConfiguration {
+class PortsConfiguration {
 
     @Bean
     PaymentsFacade paymentsFacade(Repository<PaymentDto> repository) {

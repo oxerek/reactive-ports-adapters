@@ -31,10 +31,12 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.PaymentGrpcService;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.PaymentRestHandler;
+import pl.oxerek.reactiveportsadapters.adapters.outbound.PaymentCsvRepository;
 import pl.oxerek.reactiveportsadapters.adapters.outbound.PaymentInMemoryRepository;
 import pl.oxerek.reactiveportsadapters.adapters.outbound.model.PaymentInMemoryEntity;
-import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.MappersConfig.StringValueStringMapper;
-import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.MappersConfig.StringValueUUIDMapper;
+import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.PaymentMappersConfig.StringUUIDMapper;
+import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.PaymentMappersConfig.StringValueStringMapper;
+import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.PaymentMappersConfig.StringValueUUIDMapper;
 import pl.oxerek.reactiveportsadapters.domain.ports.PaymentsFacade;
 import pl.oxerek.reactiveportsadapters.domain.ports.Repository;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
@@ -77,14 +79,20 @@ public class AdaptersConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(name = "inMemoryStore")
-    Repository<PaymentDto> inMemoryRepository(Map<UUID, PaymentInMemoryEntity> inMemoryStore) {
+    @ConditionalOnBean(name = "paymentInMemoryStore")
+    Repository<PaymentDto> paymentInMemoryRepository(Map<UUID, PaymentInMemoryEntity> inMemoryStore) {
         return new PaymentInMemoryRepository(inMemoryStore);
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "adapters", name = "storage", havingValue = "csv")
+    Repository<PaymentDto> paymentCsvRepository(AdaptersProperties adaptersProperties) {
+        return new PaymentCsvRepository(adaptersProperties.getCsvFileName());
+    }
+
+    @Bean
     @ConditionalOnProperty(prefix = "adapters", name = "storage", havingValue = "map")
-    Map<UUID, PaymentInMemoryEntity> inMemoryStore() {
+    Map<UUID, PaymentInMemoryEntity> paymentInMemoryStore() {
         return new ConcurrentHashMap<>();
     }
 
@@ -92,7 +100,7 @@ public class AdaptersConfiguration {
     static class InMemoryHazelcastStoreConfiguration {
 
         @Bean
-        Map<UUID, PaymentInMemoryEntity> inMemoryStore(
+        Map<UUID, PaymentInMemoryEntity> paymentInMemoryStore(
               @Qualifier("hazelcastInstance") HazelcastInstance hazelcast,
               AdaptersProperties adaptersProperties
         ) {
@@ -114,9 +122,21 @@ public class AdaptersConfiguration {
 
     @MapperConfig(
           unmappedTargetPolicy = ReportingPolicy.IGNORE,
-          uses = { StringValueStringMapper.class, StringValueUUIDMapper.class }
+          uses = { StringUUIDMapper.class, StringValueStringMapper.class, StringValueUUIDMapper.class }
     )
-    public interface MappersConfig {
+    public interface PaymentMappersConfig {
+
+        @NoArgsConstructor
+        class StringUUIDMapper {
+
+            public UUID toUuid(String value) {
+                return value.isEmpty() ? null : UUID.fromString(value);
+            }
+
+            public String toStringValue(UUID uuid) {
+                return uuid.toString();
+            }
+        }
 
         @NoArgsConstructor
         class StringValueUUIDMapper {

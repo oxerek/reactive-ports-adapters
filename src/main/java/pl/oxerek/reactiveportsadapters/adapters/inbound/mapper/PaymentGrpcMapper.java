@@ -5,10 +5,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.model.PaymentGrpcRequest;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.model.PaymentGrpcResponse;
-import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.MappersConfig;
+import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.PaymentMappersConfig;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 
-@Mapper(config = MappersConfig.class)
+@Mapper(config = PaymentMappersConfig.class)
 public interface PaymentGrpcMapper {
 
     PaymentGrpcMapper INSTANCE = Mappers.getMapper(PaymentGrpcMapper.class);

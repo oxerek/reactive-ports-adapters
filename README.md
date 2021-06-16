@@ -4,12 +4,11 @@ Demo application written in reactive manner with Ports&Adapters architecture.
 CQRS pattern used as convenient way of invoking of domain functionalities.
 
 The application shows integration with several Java related technologies as adapters while keeping the domain clean.
-Main assumption: Mono and Flux from https://projectreactor.io/ are treated as a part of a language.
+Main assumption: Mono and Flux from https://projectreactor.io/ are treated as a part of a language and can be used inside the domain.
 
 Integrated adapters:
 - webflux handler
 - grpc reactive service
-- inmemory object store as a simple map
 - Hazelcast inmemory object store
 
 Extras:
@@ -17,14 +16,13 @@ Extras:
 - reactive-ports-adapters.postman_collection.json
 
 TODO:
-- csv repository
 - adapters tests
 - integration tests
-- versions info in banner
-- validation (grpc, rest)
-- trasactions
-- spring profiles
-- configuration
+- block hound tests
+- archunit tests
+- validation (grpc, rest, conf)
+- transactions
+- configuration + profiles + versions info in banner
 - spring security
 - graphql
 - kafka streams

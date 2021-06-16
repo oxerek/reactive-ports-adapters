@@ -18,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.model.PaymentGrpcRequest;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.model.PaymentGrpcResponse;
 import pl.oxerek.reactiveportsadapters.adapters.inbound.model.PaymentWithIdGrpcRequest;
-import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.MappersConfig.StringValueUUIDMapper;
+import pl.oxerek.reactiveportsadapters.application.AdaptersConfiguration.PaymentMappersConfig.StringValueUUIDMapper;
 import pl.oxerek.reactiveportsadapters.domain.ports.PaymentsFacade;
 import pl.oxerek.reactiveportsadapters.domain.ports.dto.PaymentDto;
 import reactor.core.publisher.Flux;

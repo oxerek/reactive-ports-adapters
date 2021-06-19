@@ -19,7 +19,6 @@ TODO:
 - adapters tests
 - integration tests
 - block hound tests
-- archunit tests
 - validation (grpc, rest, conf)
 - transactions
 - configuration + profiles + versions info in banner

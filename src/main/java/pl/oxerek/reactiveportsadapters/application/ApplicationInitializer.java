@@ -13,7 +13,7 @@ import reactor.blockhound.BlockHound;
 public class ApplicationInitializer {
 
 	static {
-		BlockHound.install();
+		//BlockHound.install();
 	}
 
 	public static void main(String[] args) {

@@ -40,14 +40,17 @@ public class PaymentCsvProcessor {
             of(() -> createFile(csvPath));
         }
 
-        this.csvWriter = Try.withResources(() -> new CSVPrinter(newBufferedWriter(csvPath, CREATE, TRUNCATE_EXISTING), DEFAULT
-              .withHeader("id", "amount", "currency", "userId", "targetAccountNumber")));
+        this.csvWriter = Try.withResources(() -> new CSVPrinter(
+              newBufferedWriter(csvPath, CREATE, TRUNCATE_EXISTING),
+              DEFAULT.withHeader("id", "amount", "currency", "userId", "targetAccountNumber")));
 
-        this.csvAppender = Try.withResources(() -> new CSVPrinter(newBufferedWriter(csvPath, APPEND), DEFAULT
-              .withFirstRecordAsHeader()));
+        this.csvAppender = Try.withResources(() -> new CSVPrinter(
+              newBufferedWriter(csvPath, APPEND),
+              DEFAULT.withFirstRecordAsHeader()));
 
-        this.csvReader = Try.withResources(() -> new CSVParser(newBufferedReader(csvPath), DEFAULT
-              .withFirstRecordAsHeader()));
+        this.csvReader = Try.withResources(() -> new CSVParser(
+              newBufferedReader(csvPath),
+              DEFAULT.withFirstRecordAsHeader()));
     }
 
     protected PaymentCsvRecord writeOrAppendRecord(PaymentCsvRecord paymentCsvRecord) {

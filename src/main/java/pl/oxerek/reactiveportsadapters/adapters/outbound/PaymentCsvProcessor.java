@@ -1,6 +1,5 @@
 package pl.oxerek.reactiveportsadapters.adapters.outbound;
 
-import static io.vavr.control.Try.of;
 import static java.nio.file.Files.createFile;
 import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Files.newBufferedWriter;
@@ -29,6 +28,12 @@ import pl.oxerek.reactiveportsadapters.adapters.outbound.model.PaymentCsvRecord;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class PaymentCsvProcessor {
 
+    private static final String ID_COLUMN_NAME = "id";
+    private static final String AMOUNT_COLUMN_NAME = "amount";
+    private static final String CURRENCY_COLUMN_NAME = "currency";
+    private static final String USER_ID_COLUMN_NAME = "userId";
+    private static final String TARGET_ACCOUNT_NUMBER_COLUMN_NAME = "targetAccountNumber";
+
     WithResources1<CSVPrinter> csvWriter;
     WithResources1<CSVPrinter> csvAppender;
     WithResources1<CSVParser> csvReader;
@@ -37,12 +42,12 @@ public class PaymentCsvProcessor {
         var csvPath = get(csvFileName);
 
         if (notExists(csvPath)) {
-            of(() -> createFile(csvPath));
+            Try.of(() -> createFile(csvPath));
         }
 
         this.csvWriter = Try.withResources(() -> new CSVPrinter(
               newBufferedWriter(csvPath, CREATE, TRUNCATE_EXISTING),
-              DEFAULT.withHeader("id", "amount", "currency", "userId", "targetAccountNumber")));
+              DEFAULT.withHeader(ID_COLUMN_NAME, AMOUNT_COLUMN_NAME, CURRENCY_COLUMN_NAME, USER_ID_COLUMN_NAME, TARGET_ACCOUNT_NUMBER_COLUMN_NAME)));
 
         this.csvAppender = Try.withResources(() -> new CSVPrinter(
               newBufferedWriter(csvPath, APPEND),

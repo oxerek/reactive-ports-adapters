@@ -15,15 +15,3 @@ Integrated adapters:
 Extras:
 - java_dev_excercise.pdf with description of app features
 - reactive-ports-adapters.postman_collection.json
-
-TODO:
-- adapters tests
-- integration tests
-- block hound tests
-- validation (grpc, rest, conf)
-- transactions
-- configuration + profiles + versions info in banner + zalando logger
-- spring security
-- graphql
-- kafka streams
-- docker compose (gusaul/grpcox, zookeeper, kafka, kafdrop)
